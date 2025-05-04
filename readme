@@ -1,0 +1,46 @@
+# CS214 MyMalloc
+
+Custom implementation of `malloc()` and `free()` in C, written for Rutgers CS214 Fall 2024 Project I.  
+This library simulates heap memory allocation and includes error detection, chunk coalescing, and memory leak reporting.
+
+## 🔧 Features
+
+- Fixed-size memory region (`4096 bytes`)
+- All metadata and user data stored in a static byte array
+- Chunk model: header (metadata) + payload (client data)
+- 8-byte alignment of all chunks
+- First-fit allocation strategy
+- **Automatic coalescing** of adjacent free blocks in `free()`
+- Error detection:
+  - Double free
+  - Invalid pointer (non-malloc)
+  - Mid-chunk pointer
+- `atexit()` leak detector reports unfreed allocations on exit
+- Preprocessor macros for file & line tracking (`__FILE__`, `__LINE__`)
+
+## 📁 Files
+
+- `mymalloc.c`: implementation of malloc & free
+- `mymalloc.h`: interface with macro redefinition
+- `memgrind.c`: benchmarking program (5 workloads × 50 iterations)
+- `Makefile`: builds the project
+- `AUTHOR`, `README`: metadata & documentation
+
+## 🚦 Performance Testing
+
+Includes a `memgrind` workload that runs 5 allocation patterns 50×, using `gettimeofday()` to measure average time:
+
+1. malloc + immediate free
+2. batch malloc then batch free
+3. randomized alloc/free until quota met
+4. custom workload 1
+5. custom workload 2
+
+Each test ensures proper freeing and aims to stress the allocator without causing leaks.
+
+## 🧪 Example Error Detection
+
+```c
+int *x = malloc(10 * sizeof(int));
+free(x);
+free(x); // Triggers: double free error
