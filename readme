@@ -1,46 +1,77 @@
-# CS214 MyMalloc
+# MiniMalloc-C
 
-Custom implementation of `malloc()` and `free()` in C, written for Rutgers CS214 Fall 2024 Project I.  
-This library simulates heap memory allocation and includes error detection, chunk coalescing, and memory leak reporting.
+A custom implementation of `malloc()` and `free()` in C, simulating low-level heap allocation within a fixed-size memory region. Designed to mimic real memory allocators, this project includes chunk-based metadata, alignment, coalescing, error detection, and memory leak tracking.
+
+---
 
 ## 🔧 Features
 
-- Fixed-size memory region (`4096 bytes`)
-- All metadata and user data stored in a static byte array
-- Chunk model: header (metadata) + payload (client data)
-- 8-byte alignment of all chunks
-- First-fit allocation strategy
-- **Automatic coalescing** of adjacent free blocks in `free()`
-- Error detection:
-  - Double free
-  - Invalid pointer (non-malloc)
-  - Mid-chunk pointer
-- `atexit()` leak detector reports unfreed allocations on exit
-- Preprocessor macros for file & line tracking (`__FILE__`, `__LINE__`)
+- **Fixed-size memory pool** (`4096 bytes`)
+- **Static byte array** used for both metadata and user allocations
+- **Chunk structure**: header (metadata) + payload (user-accessible memory)
+- **8-byte alignment** for all memory blocks
+- **First-fit allocation** strategy
+- **Automatic coalescing** of adjacent free blocks during `free()`
+- **Robust error detection**:
+  - Double-free detection
+  - Invalid pointer (non-heap or unaligned)
+  - Mid-chunk pointer detection
+- **Memory leak detection**:
+  - Reports all unfreed allocations on exit using `atexit()`
+- **Debug tracking**:
+  - Preprocessor macros `__FILE__` and `__LINE__` track call origins
 
-## 📁 Files
+---
 
-- `mymalloc.c`: implementation of malloc & free
-- `mymalloc.h`: interface with macro redefinition
-- `memgrind.c`: benchmarking program (5 workloads × 50 iterations)
-- `Makefile`: builds the project
-- `AUTHOR`, `README`: metadata & documentation
+## 📁 File Overview
+
+| File           | Description                                      |
+|----------------|--------------------------------------------------|
+| `mymalloc.c`   | Core implementation of allocator and deallocator |
+| `mymalloc.h`   | Header file and macro interface                  |
+| `memgrind.c`   | Performance benchmarking program                 |
+| `Makefile`     | Compilation instructions                         |
+| `readme`       | Project documentation                            |
+
+---
 
 ## 🚦 Performance Testing
 
-Includes a `memgrind` workload that runs 5 allocation patterns 50×, using `gettimeofday()` to measure average time:
+The `memgrind` benchmark simulates five memory usage patterns, each repeated 50×, with time measured using `gettimeofday()`:
 
-1. malloc + immediate free
-2. batch malloc then batch free
-3. randomized alloc/free until quota met
-4. custom workload 1
-5. custom workload 2
+1. **malloc + immediate free**
+2. **batch malloc → batch free**
+3. **randomized malloc/free** with memory quota
+4. **custom workload 1**
+5. **custom workload 2**
 
-Each test ensures proper freeing and aims to stress the allocator without causing leaks.
+These tests stress the allocator’s coalescing and fragmentation handling capabilities while validating correctness.
 
-## 🧪 Example Error Detection
+---
+
+## 🧪 Example: Error Detection in Action
 
 ```c
 int *x = malloc(10 * sizeof(int));
 free(x);
 free(x); // Triggers: double free error
+````
+
+---
+
+## 📌 Key Concepts Demonstrated
+
+* Manual memory layout and chunk modeling
+* Allocation strategies and alignment
+* Error detection without external tooling
+* Minimalist leak tracking
+* Systems-level C programming and testing
+
+---
+
+This project showcases strong understanding of low-level memory management and simulates key behaviors of system allocators like `malloc()` and `free()` — without relying on external libraries or OS memory calls.
+
+```
+
+---
+
